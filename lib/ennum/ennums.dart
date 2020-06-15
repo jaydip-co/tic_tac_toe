@@ -1,0 +1,4 @@
+enum Players {
+  Host,
+  Guest,
+}
