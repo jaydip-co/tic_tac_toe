@@ -3,10 +3,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tictactoe/Models/UserModel.dart';
-import 'package:tictactoe/Providers/TurnProvider.dart';
 import 'package:tictactoe/Services/DatabaseServece.dart';
-import 'package:tictactoe/ennum/ennums.dart';
+import 'package:tictactoe/Services/exampleDatabase.dart';
 import 'dart:math';
 class invitation extends StatefulWidget {
   @override
@@ -15,23 +13,28 @@ class invitation extends StatefulWidget {
 
 class _invitationState extends State<invitation> {
 
-    showdialogForCreate(BuildContext context,String id)  async {
+
+   Future showdialogForCreate(BuildContext context,String id)  async {
 
     String value ;
     return showDialog(
         context: context,
       builder: (context) {
+//          final dataservice = Provider.of<exmpleDatabase>(context,listen: false);
           return StreamBuilder<int>(
             stream: databaseService().waitFromCoonfermation(id),
             builder: (context,snapshot){
+              print(snapshot.data);
 
               if(snapshot.data == 1){
                 print(snapshot.data);
-                Navigator.pop(context);
+                Navigator.of(context).pop();
+                return Container();
               }
-                return  AlertDialog(
+              else {
+                return AlertDialog(
                   title: Text('deside'),
-                  content:Form(
+                  content: Form(
                     child: TextFormField(
                       initialValue: '$id',
                       onChanged: (val) => value = val,
@@ -42,13 +45,14 @@ class _invitationState extends State<invitation> {
 
                     RaisedButton(
                       child: Text('cancle'),
-                      onPressed: (){
+                      onPressed: () {
                         databaseService().deleteDocument(id);
                         Navigator.pop(context);
                       },
                     )
                   ],
                 );
+              }
               },
           );
       }
@@ -68,7 +72,9 @@ class _invitationState extends State<invitation> {
   }
   @override
   Widget build(BuildContext context) {
+//      final dataservice = Provider.of<exmpleDatabase>(context,listen: false);
     int id;
+    final database = Provider.of<exmpleDatabase>(context,listen: false);
     Random random = Random.secure();
 
     return Scaffold(
@@ -84,12 +90,23 @@ class _invitationState extends State<invitation> {
                 onPressed: () async {
                   id = random.nextInt(999999);
 
-//                  databaseService().setInitialValues();
-                  await databaseService().CreateNewGame('$id');
-                 await showdialogForCreate(context, '$id');
-                 Provider.of<turnProvider>(context,listen: false).setValue(true);
-                 Provider.of<turnProvider>(context,listen: false).setId('$id');
-                 Navigator.popAndPushNamed(context, '/gameScreen');
+                  await database.CreateNewGame('$id');
+                  database.setGameId('$id');
+                  database.setIsCreated();
+
+                 await showdialogForCreate(context, '$id').then((_){
+                   Navigator.popAndPushNamed(context, '/gameScreen');
+
+                 });
+
+
+
+//                  dataservice.setId.add('$id');
+//                  Provider.of<idNotifier>(context,listen: false).setId('$id');
+//                  Provider.of<idNotifier>(context,listen: false).setCreated();
+//                 Provider.of<exmpleDatabase>(context,listen: false).setValue(true);
+//                 Provider.of<exmpleDatabase>(context,listen: false).setId('$id');
+
 
 //                  Provider.of<turnProvider>(context,listen: false).setValue(true);
 //                  await databaseService().setHost(id);
@@ -99,12 +116,16 @@ class _invitationState extends State<invitation> {
             RaisedButton(
                 child: Text('Join'),
                 onPressed: () async {
-                  print(Players.Guest);
                   showDialogForJoin(context).then((value)  async {
                     if(await databaseService().isDocumentAvailable(value)){
-                      final ref = Provider.of<turnProvider>(context,listen: false);
-                      ref.setValue(false);
-                      ref.setId(value);
+//                      final ref = Provider.of<turnProvider>(context,listen: false);
+//                      ref.setValue(false);
+//                      ref.setId(value);
+                    print("jaydip"+value);
+//                      dataservice.setId.add(value);
+//                      Provider.of<idNotifier>(context,listen: false).setId(value);
+                      database.setGameId(value);
+                      database.setDone();
                       await databaseService().setdone(value);
                       Navigator.popAndPushNamed(context, '/gameScreen');
                     }

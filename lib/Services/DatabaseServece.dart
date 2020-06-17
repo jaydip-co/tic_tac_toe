@@ -1,7 +1,5 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
-import 'package:tictactoe/ennum/ennums.dart';
 import 'dart:core';
 
 class databaseService{
@@ -74,7 +72,7 @@ class databaseService{
     return documentSnapshot.data['done'];
   }
 
-  Stream<int> waitFromCoonfermation(String id) {
+  Stream<int>  waitFromCoonfermation(String id) {
 
 
     return _ref.document(id).snapshots().map(_fromSnapshotToInt);
@@ -91,8 +89,7 @@ class databaseService{
       '7' : 4,
       '8' : 4,
       '9' : 4,
-      'host': 1,
-      'guest':0,
+      '10': 1,
       'done' : 0
     });
   }
@@ -102,4 +99,6 @@ class databaseService{
       'done' : 1
     });
   }
+
+
 }

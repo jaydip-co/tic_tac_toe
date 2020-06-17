@@ -1,33 +1,28 @@
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tictactoe/Elements/OneElement.dart';
-import 'package:tictactoe/Models/UserModel.dart';
-import 'package:tictactoe/Providers/TurnProvider.dart';
-import 'package:tictactoe/Services/DatabaseServece.dart';
+import 'package:tictactoe/Services/exampleDatabase.dart';
 class box extends StatelessWidget {
-  final int index;
   final int value;
   final bool turn;
-  final String point;
+  final int index;
 
-  const box({Key key, this.index,  this.value, this.turn, this.point}) : super(key: key);
-
+  const box({Key key, this.value,this.turn,this.index}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final host = Provider.of<turnProvider>(context,listen: false).ishost;
-    final docId = Provider.of<turnProvider>(context,listen: false).getId;
-    print('builded....$index ');
 
+//    final exampledata = Provider.of<exmpleDatabase>(context,listen: false);
+   // print('builded....$index ');
+    final database = Provider.of<exmpleDatabase>(context,listen: false);
+    final val = witchValue(value);
     return  GestureDetector(
 
 
-        onTap: (turn && value==4 ) ?  () async {
+        onTap: (turn && value == 0)  ?  () async {
 
-          await databaseService().setValue(docId, index, 20, host);
-
+//          await exampledata.setValueAndTurn(index);
+            database.setValueAndTurn(index);
 
         }  : (){print('hahahah');},
         child: Container(
@@ -35,15 +30,30 @@ class box extends StatelessWidget {
           height: 100.0,
           width: 100.0,
           decoration: BoxDecoration(
-            color: (turn && value==4 ) ? Colors.grey[100] : Colors.grey,
+            color: (turn && value==0 ) ? Colors.grey[100] : Colors.grey,
             borderRadius: BorderRadius.all(Radius.circular(9)),
             border: Border.all(color: Colors.red),
 
           ),
-          child: OneElement(value: value,),
+          child: Center(
+            child: Text(val,
+              style: TextStyle(fontSize: 70),),
+          ),
 
           ),
 
         );
+  }
+
+  String witchValue(int val){
+    switch(val){
+      case 0:
+        return '';
+        break;
+      case 1:
+        return 'X';
+      case 2:
+        return 'O';
+    }
   }
 }
