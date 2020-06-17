@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tictactoe/Screen/Home/PlayBox.dart';
+import 'file:///E:/projects/flutter/tic_tac_toe/lib/Screen/game/PlayBox.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
 
 

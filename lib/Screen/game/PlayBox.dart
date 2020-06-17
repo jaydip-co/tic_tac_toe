@@ -3,7 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tictactoe/Elements/Playelement.dart';
+import 'file:///E:/projects/flutter/tic_tac_toe/lib/Screen/game/Playelement.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
 
 
