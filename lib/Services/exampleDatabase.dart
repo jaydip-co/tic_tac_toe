@@ -86,8 +86,11 @@ class exmpleDatabase{
   Stream<int> get waiting => _waitingController.stream;
 
 
+
   StreamController<List<int>> _outputValues = StreamController.broadcast();
   Stream<List<int>>  get getValues  => _outputValues.stream;
+  StreamController<int> _winController = StreamController.broadcast();
+  Stream<int> get Win => _winController.stream;
 
   startListening(){
     print('started....');
@@ -99,8 +102,12 @@ class exmpleDatabase{
     }
     if(_subscription == null){
       _subscription = _ref.document(_gameid).snapshots().listen((snapshot) {
+
         values = [0,0,0,0,0,0,0,0,0,0];
         if(snapshot != null){
+          if(snapshot.data['win'] == 1){
+            _winController.add(1);
+          }
           snapshot.data.forEach((key, value) {
             if(key != 'done' && key != '10' && key != 'win'){
               final index= int.parse(key) - 1;
@@ -120,8 +127,6 @@ class exmpleDatabase{
                 else{values.insert(index, 1);}
               }
             }
-
-
           }
           );
         }

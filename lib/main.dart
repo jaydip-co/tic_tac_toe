@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:tictactoe/Screen/game/gameScreen.dart';
 import 'package:tictactoe/Services/AuthService.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
+import 'package:tictactoe/testDatabase.dart';
+import 'package:tictactoe/testScreen.dart';
 
 
 import 'Models/UserModel.dart';
@@ -27,11 +29,15 @@ class MyApp extends StatelessWidget {
         Provider<exmpleDatabase>(
           create: (con) => exmpleDatabase(),
         ),
+        Provider<testdata>(
+          create: (con) => testdata(),
+        )
       ],
       child: MaterialApp(
         initialRoute: '/',
         routes: {
           '/' : (context) => Wrapper(),
+//              testScreen(),
 
           '/gameScreen' :(context){
             return gameScreen();
