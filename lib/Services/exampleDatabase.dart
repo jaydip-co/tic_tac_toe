@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:tictactoe/WinCheck.dart';
 class exmpleDatabase{
+  int selected = 0;
   //variables......
   StreamSubscription  _subscription;
   String _gameid;
@@ -41,6 +42,7 @@ class exmpleDatabase{
   }
   //updateValues
   Future setValueAndTurn(int index) async{
+
     int updateValue ;
     int turn;
     final listIndex = index - 1 ;
@@ -56,6 +58,12 @@ class exmpleDatabase{
       updateValue = 2;
       turn = 1;
     }
+    selected = selected + 2;
+    if(selected > 9){
+      return _ref.document(_gameid).updateData({
+        'win': 2,  //two for draw
+      });
+    }
     //checking for win.......
     bool win = WinCheck().checkForWin(values);
     if(win){
@@ -63,7 +71,8 @@ class exmpleDatabase{
       return _ref.document(_gameid).updateData({
         '$index' : updateValue,
         '10' : turn,
-        'win': 1,
+        'win': 1, //one for win
+        'winner' : isCreated ? 1 : 2,
       });
     }
     else {
@@ -79,6 +88,33 @@ class exmpleDatabase{
       'done' : 1,
     });
   }
+
+  Future<int> get getResult async {
+    final data = await _ref.document(_gameid).get();
+    int val = data.data['winner'];
+    if(isCreated){
+      switch(val){
+        case 1:
+          return 1;
+          break;
+        case 2:
+          return 0;
+          break;
+      }
+    }
+    else{
+      switch(val){
+        case 1:
+          return 0;
+          break;
+        case 2:
+          return 1;
+          break;
+      }
+    }
+  }
+
+
 
 
   //streams and listeners.......
@@ -109,7 +145,7 @@ class exmpleDatabase{
             _winController.add(1);
           }
           snapshot.data.forEach((key, value) {
-            if(key != 'done' && key != '10' && key != 'win'){
+            if(key != 'done' && key != '10' && key != 'win' && key != 'winner'){
               final index= int.parse(key) - 1;
               values.removeAt(index);
               values.insert(index, value);

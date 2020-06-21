@@ -6,10 +6,15 @@ import 'file:///E:/projects/flutter/tic_tac_toe/lib/Screen/game/PlayBox.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
 
 
-class gameScreen extends StatelessWidget {
+class gameScreen extends StatefulWidget {
 
 
 
+  @override
+  _gameScreenState createState() => _gameScreenState();
+}
+
+class _gameScreenState extends State<gameScreen> {
   @override
   Widget build(BuildContext context) {
     final database = Provider.of<exmpleDatabase>(context);
@@ -35,7 +40,8 @@ class gameScreen extends StatelessWidget {
               case 0:
                 return playBox();
               case 1:
-                return WiningScreen();
+
+                return Container();
               default:
                 return Text('error');
             }

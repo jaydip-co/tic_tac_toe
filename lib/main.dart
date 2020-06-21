@@ -1,7 +1,10 @@
 
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tictactoe/Screen/game/Wining.dart';
 import 'package:tictactoe/Screen/game/gameScreen.dart';
 import 'package:tictactoe/Services/AuthService.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
@@ -39,6 +42,9 @@ class MyApp extends StatelessWidget {
           '/' : (context) => Wrapper(),
 //              testScreen(),
 
+//              Wrapper(),
+
+          '/result': (con) => completed(),
           '/gameScreen' :(context){
             return gameScreen();
           },
