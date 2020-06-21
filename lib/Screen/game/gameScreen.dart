@@ -40,7 +40,7 @@ class _gameScreenState extends State<gameScreen> {
               case 0:
                 return playBox();
               case 1:
-
+                Navigator.popAndPushNamed(context,'/result');
                 return Container();
               default:
                 return Text('error');
