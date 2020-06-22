@@ -24,7 +24,7 @@ class box extends StatelessWidget {
 //          await exampledata.setValueAndTurn(index);
             database.setValueAndTurn(index);
 
-        }  : (){print('hahahah');},
+        }  : (){},
         child: Container(
           margin: EdgeInsets.all(1.0),
           height: 100.0,

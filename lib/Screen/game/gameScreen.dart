@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tictactoe/Screen/game/Wining.dart';
 import 'file:///E:/projects/flutter/tic_tac_toe/lib/Screen/game/PlayBox.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
+import 'package:tictactoe/testDatabase.dart';
 
 
 class gameScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _gameScreenState extends State<gameScreen> {
   @override
   Widget build(BuildContext context) {
     final database = Provider.of<exmpleDatabase>(context);
-
+    Provider.of<testdata>(context).controller.sink.add(0);
     database.startListening();
 
 //    print("size...${fire.gameid}");
@@ -40,7 +41,9 @@ class _gameScreenState extends State<gameScreen> {
               case 0:
                 return playBox();
               case 1:
-                Navigator.popAndPushNamed(context,'/result');
+                myCallback((){
+                  Navigator.popAndPushNamed(context, '/result');
+                });
                 return Container();
               default:
                 return Text('error');
@@ -48,6 +51,11 @@ class _gameScreenState extends State<gameScreen> {
           },
         ),
         );
+  }
+  void myCallback(Function callback){
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      callback();
+    });
   }
 }
 

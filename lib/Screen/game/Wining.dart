@@ -1,11 +1,13 @@
  import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class completed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = Provider.of<exmpleDatabase>(context,listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('result'),
@@ -13,7 +15,8 @@ class completed extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.replay) ,
             onPressed: (){
-              print('replay pressed');
+              data.DeleteFile();
+              Navigator.of(context).popAndPushNamed('/');
             },
             tooltip: "replay",
           ),
@@ -23,7 +26,6 @@ class completed extends StatelessWidget {
           child: FutureBuilder<int>(
             future: data.getResult,
             builder: (cont,data){
-              print('value in widget... ${data.data}');
               Widget chield = Text('loading');
               switch(data.data){
                 case 0:
@@ -31,6 +33,12 @@ class completed extends StatelessWidget {
                   break;
                 case 1:
                   chield = Text('win');
+                  break;
+                case 3:
+                  chield = Text('draw');
+                  break;
+                default:
+                  chield = SpinKitWanderingCubes(size: 20.0,color: Colors.cyan,);
               }
               return chield;
             },

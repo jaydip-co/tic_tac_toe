@@ -1,9 +1,11 @@
 
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tictactoe/Services/DatabaseServece.dart';
+import 'package:tictactoe/Screen/Loading.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
 import 'dart:math';
 class invitation extends StatefulWidget {
@@ -13,6 +15,30 @@ class invitation extends StatefulWidget {
 
 class _invitationState extends State<invitation> {
 
+  String status = '';
+  bool isLoading =false;
+  StreamSubscription _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    Provider.of<exmpleDatabase>(context,listen: false).close();
+  }
+
+  mycallback(Function callback){
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      callback();
+    });
+  }
+
+  startListening(exmpleDatabase database){
+    _subscription = database.WaitingForDone.listen((event) {
+      if(event == 1){
+        Navigator.of(context).popAndPushNamed('/gameScreen');
+      }
+    });
+  }
+
 
    Future showdialogForCreate(BuildContext context,String id)  async {
 
@@ -20,40 +46,32 @@ class _invitationState extends State<invitation> {
     return showDialog(
         context: context,
       builder: (context) {
-//          final dataservice = Provider.of<exmpleDatabase>(context,listen: false);
-          return StreamBuilder<int>(
-            stream: databaseService().waitFromCoonfermation(id),
-            builder: (context,snapshot){
-              print(snapshot.data);
+          final dataservice = Provider.of<exmpleDatabase>(context,listen: false);
+          return AlertDialog(
+            title: Text('decide'),
+            content: Form(
+              child: TextFormField(
+                initialValue: '$id',
+                onChanged: (val) => value = val,
 
-              if(snapshot.data == 1){
-                print(snapshot.data);
-                Navigator.of(context).pop();
-                return Container();
-              }
-              else {
-                return AlertDialog(
-                  title: Text('deside'),
-                  content: Form(
-                    child: TextFormField(
-                      initialValue: '$id',
-                      onChanged: (val) => value = val,
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                onPressed: (){
+                  Navigator.pop(context,id);
+                },
+                child: Text('ok'),
+              ),
 
-                    ),
-                  ),
-                  actions: <Widget>[
-
-                    RaisedButton(
-                      child: Text('cancle'),
-                      onPressed: () {
-                        databaseService().deleteDocument(id);
-                        Navigator.pop(context);
-                      },
-                    )
-                  ],
-                );
-              }
-              },
+              RaisedButton(
+                child: Text('cancel'),
+                onPressed: () {
+                  dataservice.DeleteFile();
+                  Navigator.pop(context);
+                },
+              )
+            ],
           );
       }
 
@@ -62,142 +80,112 @@ class _invitationState extends State<invitation> {
   }
 
   Future<String> showDialogForJoin(BuildContext context){
-
-
-     return  showDialog(context: context,
+    String id;
+    return  showDialog(context: context,
      builder: (context) {
-       return dialogWidget();
+       return AlertDialog(
+         title: Text('Enter Code'),
+         content: Form(
+           child: TextFormField(
+             onChanged:(val) => id=val,
+           ),
+         ),
+         actions: <Widget>[
+           RaisedButton(
+             child: Text('ok'),
+             onPressed: () async{
+               if(id != null) {
+                 Navigator.of(context).pop(id);
+               }
+             },
+           ),
+           RaisedButton(
+             child: Text('cancle'),
+             onPressed: (){
+               Navigator.pop(context);
+             },
+           )
+
+         ],
+       );
      }
      );
   }
   @override
   Widget build(BuildContext context) {
-//      final dataservice = Provider.of<exmpleDatabase>(context,listen: false);
     int id;
     final database = Provider.of<exmpleDatabase>(context,listen: false);
     Random random = Random.secure();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('invitation screen'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            RaisedButton (
-                child: Text('Create'),
-                onPressed: () async {
-                  id = random.nextInt(999999);
-
-                  await database.CreateNewGame('$id');
-                  database.setGameId('$id');
-                  database.setIsCreated();
-
-                 await showdialogForCreate(context, '$id').then((_){
-                   Navigator.popAndPushNamed(context, '/gameScreen');
-
-                 });
-
-
-
-//                  dataservice.setId.add('$id');
-//                  Provider.of<idNotifier>(context,listen: false).setId('$id');
-//                  Provider.of<idNotifier>(context,listen: false).setCreated();
-//                 Provider.of<exmpleDatabase>(context,listen: false).setValue(true);
-//                 Provider.of<exmpleDatabase>(context,listen: false).setId('$id');
-
-
-//                  Provider.of<turnProvider>(context,listen: false).setValue(true);
-//                  await databaseService().setHost(id);
-//                  Navigator.popAndPushNamed(context, '/gameScreen');
-                }
-            ),
-            RaisedButton(
-                child: Text('Join'),
-                onPressed: () async {
-                  showDialogForJoin(context).then((value)  async {
-                    if(await databaseService().isDocumentAvailable(value)){
-//                      final ref = Provider.of<turnProvider>(context,listen: false);
-//                      ref.setValue(false);
-//                      ref.setId(value);
-                    print("jaydip"+value);
-//                      dataservice.setId.add(value);
-//                      Provider.of<idNotifier>(context,listen: false).setId(value);
-                      database.setGameId(value);
-                      database.setDone();
-                      await databaseService().setdone(value);
-                      Navigator.popAndPushNamed(context, '/gameScreen');
+    return isLoading ? Loading() : Scaffold(
+        appBar: AppBar(
+          title: Text('invitation screen'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              RaisedButton (
+                  child: Text('Create'),
+                  onPressed: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    while(id == null){
+                      id = random.nextInt(999999);
+                      if(id < 999){
+                        id = null;
+                        continue;
+                      }
+                      if(await database.isDocumentAvailable('$id')){
+                        id = null;
+                        continue;
+                      }
                     }
-                  });
-//                  Provider.of<turnProvider>(context,listen: false).setValue(false);
-//                  await databaseService().setGuest(id);
-//                  Navigator.popAndPushNamed(context, '/gameScreen');
-                }
-            ),
-          ],
-        ),
-      )
-    );
-  }
-}
+                    await database.CreateNewGame('$id');
+                    setState(() {
+                      isLoading = false;
+                    });
+                    database.setGameId('$id');
+                    database.setIsCreated();
 
-class dialogWidget extends StatefulWidget {
+                    await showdialogForCreate(context, '$id').then((data){
+                      setState(() {
+                        status = 'id is...$data';
+                      });
+                      database.StartListeningForWin();
+                      startListening(database);
+                    });
+                  }
+              ),
+              RaisedButton(
+                  child: Text('Join'),
+                  onPressed: () async {
+                    showDialogForJoin(context).then((value)  async {
+                      if(value.length > 1){
+                        setState(() {
+                          isLoading = true;
+                        });
+                        if(await database.isDocumentAvailable(value)){
+                          database.setGameId(value);
+                          database.StartListeningForWin();
+                          startListening(database);
+                          await database.setDone();
+                        }
+                        else{
+                          setState(() {
+                            isLoading = false;
+                            status ="Wrong code";
+                          });
 
-  @override
-  _dialogWidgetState createState() => _dialogWidgetState();
-}
-
-class _dialogWidgetState extends State<dialogWidget> {
-  bool isLoading = false;
-  String id;
-  @override
-  Widget build(BuildContext context) {
-    return isLoading ? AlertDialog(content: Text('Loading'),
-
-      actions: <Widget>[
-        RaisedButton(
-          child: Text('cancle'),
-          onPressed: (){
-            Navigator.pop(context);
-          },
+                        }
+                      }
+                    });
+                  }
+              ),
+              Text("$status",style: TextStyle(color: Colors.red,fontSize: 16.0),),
+            ],
+          ),
         )
-      ],
-    ) :AlertDialog(
-      title: Text('Enter Code'),
-      content: Form(
-        child: TextFormField(
-          onChanged:(val) => id=val,
-        ),
-      ),
-      actions: <Widget>[
-        RaisedButton(
-          child: Text('yes'),
-          onPressed: () async{
-            //isLoading = true;
-            setState(() {
-              isLoading = true;
-            });
-
-
-            if(id != null) {
-              if(await databaseService().isDocumentAvailable(id)){
-
-                Navigator.of(context).pop(id);
-
-              }
-            }
-          },
-        ),
-        RaisedButton(
-          child: Text('cancle'),
-          onPressed: (){
-            // databaseService().deleteDocument(id);
-            Navigator.pop(context);
-          },
-        )
-
-      ],
     );
   }
 }

@@ -2,7 +2,6 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tictactoe/Models/UserModel.dart';
-import 'package:tictactoe/Services/DatabaseServece.dart';
 
 class Authservice{
       final FirebaseAuth _auth = FirebaseAuth.instance;

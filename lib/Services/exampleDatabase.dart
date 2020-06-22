@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:tictactoe/WinCheck.dart';
 class exmpleDatabase{
+
   int selected = 0;
   //variables......
   StreamSubscription  _subscription;
@@ -58,12 +59,7 @@ class exmpleDatabase{
       updateValue = 2;
       turn = 1;
     }
-    selected = selected + 2;
-    if(selected > 9){
-      return _ref.document(_gameid).updateData({
-        'win': 2,  //two for draw
-      });
-    }
+
     //checking for win.......
     bool win = WinCheck().checkForWin(values);
     if(win){
@@ -76,6 +72,13 @@ class exmpleDatabase{
       });
     }
     else {
+      selected = selected + 2;
+      if(selected > 9){
+        return _ref.document(_gameid).updateData({
+          'win': 1, //two for draw
+          'winner' : 0,
+        });
+      }
       return _ref.document(_gameid).updateData({
         '$index': updateValue,
         '10': turn,
@@ -92,6 +95,9 @@ class exmpleDatabase{
   Future<int> get getResult async {
     final data = await _ref.document(_gameid).get();
     int val = data.data['winner'];
+    if(val == 0){
+      return 3;
+    }
     if(isCreated){
       switch(val){
         case 1:
@@ -114,14 +120,41 @@ class exmpleDatabase{
     }
   }
 
+  Future DeleteFile() async {
+    stopListening();
+   await _ref.document(_gameid).delete();
+   _gameid = null;
+   isCreated = false;
+   selected = 0;
+  }
+  //checkin for id if available or not
+  Future<bool> isDocumentAvailable(String id ) async{
+    DocumentSnapshot doc = await _ref.document(id).get();
 
-
-
+//    print(doc);
+    if (doc.exists){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
   //streams and listeners.......
-  final _waitingController = StreamController<int>.broadcast();
-  Stream<int> get waiting => _waitingController.stream;
+  StartListeningForWin(){
+    print('jaydip............$_gameid');
+    _subscription =_ref.document(_gameid).snapshots().listen((event) {
+      if(event.data['done'] == 1){
+        _WaitingContoller.add(1);
+      }
+    });
+  }
 
 
+  StreamController<int> _WaitingContoller = StreamController();
+  Stream<int> get WaitingForDone => _WaitingContoller.stream;
+  void close() {
+    _winController.close();
+  }
 
   StreamController<List<int>> _outputValues = StreamController.broadcast();
   Stream<List<int>>  get getValues  => _outputValues.stream;
@@ -169,6 +202,14 @@ class exmpleDatabase{
         print(values);
         _outputValues.add(values);
       });
+    }
+  }
+
+  stopListening(){
+    if(_subscription != null){
+      _subscription.cancel();
+      print(_subscription);
+      _subscription = null;
     }
   }
 }

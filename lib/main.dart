@@ -16,7 +16,11 @@ import 'Models/UserModel.dart';
 import 'Wrapper.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(Provider<testdata>(
+      create: (con) => testdata(),
+      child: MyApp()
+  )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -32,24 +36,16 @@ class MyApp extends StatelessWidget {
         Provider<exmpleDatabase>(
           create: (con) => exmpleDatabase(),
         ),
-        Provider<testdata>(
-          create: (con) => testdata(),
-        )
+
       ],
       child: MaterialApp(
         initialRoute: '/',
         routes: {
-          '/' : (context) => Wrapper(),
-//              testScreen(),
-
-//              Wrapper(),
-
+          '/': (context) => Wrapper(),
           '/result': (con) => completed(),
-          '/gameScreen' :(context){
-            return gameScreen();
-          },
+          '/gameScreen': (con) => gameScreen(),
         },
-      ),
+      )
     );
   }
 }
