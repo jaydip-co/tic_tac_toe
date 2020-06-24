@@ -3,7 +3,7 @@
 A new Flutter application.
 
 I have created this tictactoe game for practice.
-this is multiplayyer online game 
+this is multiplayer online game 
 i have used firebase for backend and provider package for providing stream of data.
 
 
