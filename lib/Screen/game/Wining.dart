@@ -7,9 +7,9 @@ class completed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = Provider.of<exmpleDatabase>(context,listen: false);
-
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('result'),
         actions: <Widget>[
           IconButton(

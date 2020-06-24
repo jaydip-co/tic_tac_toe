@@ -4,13 +4,11 @@ import 'package:tictactoe/Services/AuthService.dart';
 
 
 class SignIn extends StatefulWidget {
-
   @override
   _SignInState createState() => _SignInState();
 }
 
 class _SignInState extends State<SignIn> {
-//  final AuthService _auth = AuthService();
   String email ='';
   String password ='';
   String error ='';
@@ -19,42 +17,23 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
 
-
     return Scaffold(
-        backgroundColor: Colors.blueGrey[200],
-
-        appBar: AppBar(
-          backgroundColor: Colors.blueGrey[400],
-          title: Text('sign in with Email and password',),
-          actions: <Widget>[
-            RaisedButton(
-              child: Text('signOut'),
-              onPressed: () async {
-                Authservice().Signout();
-
-              },
-
-            )
-          ],
-
-        ),
+      appBar: AppBar(
+        title: Text('sign in Anonymously',),
+      ),
         resizeToAvoidBottomPadding: true,
-        body: Container(
-          padding: EdgeInsets.fromLTRB(50.0, 130.0, 50.0, 0),
+        body: Center(
           child: Form(
             key: _formkey,
             child:  RaisedButton(
-              color: Colors.red[100],
               child: Text('Sign in',
                 style: TextStyle(fontSize: 20.0),),
               onPressed: () async {
                 FirebaseUser user = await Authservice().SignInAno();
-                //print(user.uid);
-
               },
             ),
             ),
-          ),
+        ),
         );
   }
 }

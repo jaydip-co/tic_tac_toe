@@ -7,27 +7,22 @@ class Authservice{
       final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
-
-
       //method to conver the firebase auth to user model
       User _fromFireBaseUsertoUser(FirebaseUser user){
             return user == null ? null : User(uid: user.uid);
       }
 
       //stream for user state
-
       Stream<User> get user {
             return _auth.onAuthStateChanged.map(_fromFireBaseUsertoUser);
       }
 
 
       //sign in withot Email
-
       Future SignInAno() async {
       try{
       AuthResult result =  await _auth.signInAnonymously();
       FirebaseUser  user = result.user;
-//       await databaseService(uid: user.uid).setInitialValues();
       return user;
       }
       catch(e){

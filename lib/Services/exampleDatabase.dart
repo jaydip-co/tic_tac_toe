@@ -19,7 +19,6 @@ class exmpleDatabase{
   String get getId => _gameid;
   setGameId(String s){
     _gameid = s;
-   // print("id setted....$_gameid");
   }
   setIsCreated(){
     isCreated = true;
@@ -54,7 +53,7 @@ class exmpleDatabase{
       turn = 0;
     }
     else{
-      //1 karvanu
+      //1
       values.insert(listIndex, 2);
       updateValue = 2;
       turn = 1;
@@ -63,7 +62,6 @@ class exmpleDatabase{
     //checking for win.......
     bool win = WinCheck().checkForWin(values);
     if(win){
-      print('win');
       return _ref.document(_gameid).updateData({
         '$index' : updateValue,
         '10' : turn,
@@ -130,8 +128,6 @@ class exmpleDatabase{
   //checkin for id if available or not
   Future<bool> isDocumentAvailable(String id ) async{
     DocumentSnapshot doc = await _ref.document(id).get();
-
-//    print(doc);
     if (doc.exists){
       return true;
     }
@@ -140,45 +136,54 @@ class exmpleDatabase{
     }
   }
   //streams and listeners.......
-  StartListeningForWin(){
-    print('jaydip............$_gameid');
+  StartListeningForDone(){
     _subscription =_ref.document(_gameid).snapshots().listen((event) {
       if(event.data['done'] == 1){
         _WaitingContoller.add(1);
       }
     });
   }
-
-
-  StreamController<int> _WaitingContoller = StreamController();
-  Stream<int> get WaitingForDone => _WaitingContoller.stream;
-  void close() {
-    _winController.close();
+  Future setCancel(){
+    return _ref.document(_gameid).updateData({
+      'cancel' : 1,
+    });
   }
 
+
+
+  void close() {
+    if(_WaitingContoller.hasListener) {
+      _WaitingContoller.close();
+    }
+  }
+  StreamController<int> _WaitingContoller = StreamController();
+  Stream<int> get WaitingForDone => _WaitingContoller.stream;
+  StreamController<int> _CancelContoller = StreamController();
+  Stream<int> get CancelStream => _CancelContoller.stream;
   StreamController<List<int>> _outputValues = StreamController.broadcast();
   Stream<List<int>>  get getValues  => _outputValues.stream;
   StreamController<int> _winController = StreamController.broadcast();
   Stream<int> get Win => _winController.stream;
 
   startListening(){
-    print('started....');
-    print("current id$_gameid");
     if(_subscription != null){
       _subscription.cancel();
-      print(_subscription);
       _subscription = null;
     }
     if(_subscription == null){
-      _subscription = _ref.document(_gameid).snapshots().listen((snapshot) {
+      _subscription = _ref.document(_gameid).snapshots().listen((snapshot) async{
 
         values = [0,0,0,0,0,0,0,0,0,0];
         if(snapshot != null){
           if(snapshot.data['win'] == 1){
             _winController.add(1);
           }
+          if(snapshot.data['cancel'] == 1){
+            _CancelContoller.add(1);
+            await DeleteFile();
+          }
           snapshot.data.forEach((key, value) {
-            if(key != 'done' && key != '10' && key != 'win' && key != 'winner'){
+            if(key != 'done' && key != '10' && key != 'win' && key != 'winner' && key != 'cancel'){
               final index= int.parse(key) - 1;
               values.removeAt(index);
               values.insert(index, value);
@@ -196,10 +201,10 @@ class exmpleDatabase{
                 else{values.insert(index, 1);}
               }
             }
+
           }
           );
         }
-        print(values);
         _outputValues.add(values);
       });
     }
@@ -208,7 +213,6 @@ class exmpleDatabase{
   stopListening(){
     if(_subscription != null){
       _subscription.cancel();
-      print(_subscription);
       _subscription = null;
     }
   }
