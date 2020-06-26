@@ -2,6 +2,11 @@
 
 A new Flutter application.
 
+I have created this tictactoe game for practice.
+this is multiplayer online game 
+i have used firebase for backend and provider package for providing stream of data.
+
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
