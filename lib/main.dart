@@ -7,6 +7,7 @@ import 'package:tictactoe/Screen/game/Wining.dart';
 import 'package:tictactoe/Screen/game/gameScreen.dart';
 import 'package:tictactoe/Services/AuthService.dart';
 import 'package:tictactoe/Services/exampleDatabase.dart';
+import 'package:tictactoe/startingScreen.dart';
 
 
 import 'Models/UserModel.dart';
@@ -36,7 +37,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         initialRoute: '/',
         routes: {
-          '/': (context) => SafeArea(child: Wrapper()),
+
+          '/' : (context) => starting(),
+          '/wrapper' : (context) => SafeArea(child: Wrapper()),
           '/result': (con) => completed(),
           '/gameScreen': (con) => gameScreen(),
         },
